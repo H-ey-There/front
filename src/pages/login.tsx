@@ -1,13 +1,56 @@
+import React, {useState} from "react";
+import axios from "axios";
+
+interface LoginFormRequestDto {
+    email: string;
+    password: string;
+}
+
+interface AuthResponse {
+    id: number;
+    accessToken: string;
+    tokenType: string;
+}
+
 export default function Login () {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    async function submitHandler() {
+        const payload: LoginFormRequestDto = {email, password};
+
+        await axios.post("http://localhost:8080/auth/login", payload)
+        .then(response => {
+            const {status, data} = response;
+            const res:AuthResponse = data;
+
+            if (status === 200 && data) {
+                const {id, accessToken, tokenType} = res;
+                localStorage.setItem("token", `${tokenType} ${accessToken}`);
+                localStorage.setItem("id", `${id}`);
+
+                console.log(localStorage.getItem("token"));
+                console.log(localStorage.getItem("id"));
+                window.location.href = "http://localhost:3000";
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            window.alert("유저정보가 올바르지 않습니다!");
+            setEmail("");
+            setPassword("");
+        })
+    }
+
     return (
         <div className="main-wrap">
             <div className="login-main">
-                <h1>Join Now!</h1>
-                <input type="email" placeholder="email" className="box1 border1"/>
-                <input type="password" placeholder="password" className="box1 border2"/>
-                <input type="submit" className="send" value="Go"/>
+                <h1>Heythere!</h1>
+                <input type="email" placeholder="email" className="box1 border1" onChange={(e) => setEmail(e.target.value)}/>
+                <input type="password" placeholder="password" className="box1 border2" onChange={e => setPassword(e.target.value)}/>
+                <input type="submit" className="send" value="Go" onClick={submitHandler}/>
                 <div className="message"></div>
-                <p>Back to Login <a href="login.html">click here</a></p>
+                <p>Join Today <a href="/register">click here</a></p>
             </div>
             <style>{`
 *{

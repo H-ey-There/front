@@ -1,14 +1,49 @@
+import React, {useState} from "react";
+import axios from "axios";
+
+interface RegisterUserRequestDto {
+    email: string;
+    name: string;
+    password: string;
+}
+
 export default function Register () {
+    const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
+    const [password, setPassword] = useState("")
+
+    async function onClickHandler() {
+        const payload:RegisterUserRequestDto = {email, name, password};
+        await axios.post("http://localhost:8084/v1/registration", payload)
+        .then(response => {
+            const {status, data} = response;
+            if (status === 201 || status === 200) {
+                console.log(`User created, user id : ${data}`);
+                window.location.href = "/login";
+            }
+            console.log("something wrong"); 
+        }).catch(err => {
+            console.error(err);
+            setEmail("");
+            setName("");
+            setPassword("");
+            window.alert("Nono something wrong~!");
+        })
+    }
+
     return (
         <div className="main-wrap">
             <div className="login-main">
                 <h1>Join Now!</h1>
-                <input type="email" placeholder="email" className="box1 border1"/>
-                <input type="text" placeholder="nickname" className="box1 border2"/>
-                <input type="password" placeholder="password" className="box1 border2"/>
-                <input type="submit" className="send" value="Go"/>
+                <input type="email" placeholder="email" className="box1 border1" 
+                onChange={(e) => setEmail(e.target.value)}/>
+                <input type="text" placeholder="nickname" className="box1 border2"
+                onChange={(e) => setName(e.target.value)}/>
+                <input type="password" placeholder="password" className="box1 border2"
+                onChange={e => setPassword(e.target.value)}/>
+                <input type="submit" className="send" value="Go" onClick={onClickHandler}/>
                 <div className="message"></div>
-                <p>Back to Login <a href="login.html">click here</a></p>
+                <p>Back to Login <a href="/login">click here</a></p>
             </div>
             <style>{`
 *{
