@@ -1,9 +1,15 @@
 import CommunitySidebar from "../../../components/community/community-sidebar";
-import React from "react";
+import React, {useEffect} from "react";
 import CommunityPostCard from "../../../components/community/community-post-card";
-import AllCommentContainer from "../../../components/comment/all-comment-container";
 
 export default function CommunityPost() {
+    useEffect(() => {
+        if (!sessionStorage.getItem("token")) {
+            window.alert("로그인페이지로 이동합니다");
+            window.location.href = "/login";
+        }
+    }, []);
+
     return (
         <>
             <CommunitySidebar />

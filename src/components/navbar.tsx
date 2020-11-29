@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from "react";
-import axios from "axios";
-import { userInfo } from "os";
+import VideoUploadModal from "./modal/video-upload-modal";
+import PostUploadModal from "./modal/post-register-modal";
+import MyPageModal from "./modal/mypage-modal";
+import StreamingPreparationModal from "./modal/streaming-preparation-modal";
 
 const basicImg:string = "https://imgnn.seoul.co.kr/img/upload/2019/11/22/SSI_20191122132005.jpg";
 
@@ -14,53 +16,65 @@ interface UserResponse {
 export default function Navbar() {
     const [id, setId] = useState(0);
     const [img, setImg] = useState("");
+    const [text, setText] = useState("");
+    const [inputList, setInputList] = useState([]);
 
     useEffect(() => {
-      console.log(`http://localhost:8084/v1/profile/${Number(localStorage.getItem("id"))}`)
-
-      async function loadData() {
-        const response = await fetch(`http://localhost:8084/v1/profile/${Number(localStorage.getItem("id"))}`);
-        const {id, email, name, img}:UserResponse =  await response.json();
-      
-        if( img === null) {
-          setImg(basicImg);
-        }
-        else {
-          setImg(img);
-        }
-        setId(id);
-        
-      };
-
-      loadData();
       
     },[]);
 
+    function searchChangeHandler(e) {
+      setText(e.target.value)
+    }
+
+    function searchClickHandler(e) {
+      e.preventDefault();
+      const inputHistory = [...inputList, text];
+      setInputList(inputHistory);
+    }
+
     return (
+      <>
         <header className="header">
-            <a href="#">
-                <img src="logo.png" alt="YouTube Logo" className="youtube-logo"/>
+            <a href="/">
+                <img src="/icons/logo.png" alt="Heythere Logo" className="heythere-logo"/>
             </a>
             <form className="search-bar">
-                <input className="search-input" type="search" placeholder="Search" aria-label="Search"/>
-                <button type="submit" className="search-btn">
-                    <img src="magnify.svg"/>
+                <input className="search-input" type="search" placeholder="Search" aria-label="Search" onChange={searchChangeHandler}/>
+                <button type="submit" className="search-btn" onClick={searchClickHandler}>
+                    <img src="/icons/magnify.svg"/>
                 </button>
             </form>
             <div className="menu-icons">
-                <a href="/upload">
-                    <img src="video-plus.svg" alt="Upload Video"/>
-                </a>
-                <a href="#">
-                    <img src="apps.svg" alt="Apps"/>
-                </a>
-                <a href="#">
-                    <img src="bell.svg" alt="Notifications"/>
-                </a>
-                <a href={`/mypage/${id}`}>
-                    <img className="menu-channel-icon" src={img} />
-                </a>
+                <div>
+                    <VideoUploadModal />
+                </div>
+                <div>
+                    <StreamingPreparationModal />
+                </div>
+                <div>
+                    <PostUploadModal />
+                </div>
+                <div>
+                    <img src="/icons/bell.svg" alt="Notifications"/>
+                </div>
+                <div>
+                    <MyPageModal />
+                </div>
             </div>
+            
+        </header>
+        <div className="categories">
+          <section className="category-section">
+              <button className="category active">All</button>
+              {
+                inputList.map((input, index) => (
+                <button key={index} className="category">{input}</button>
+                ))
+              }
+            </section>
+            </div>
+
             <style>{`
   .header {
     display: flex;
@@ -68,8 +82,8 @@ export default function Navbar() {
     align-items: center;
     padding: 1rem;
   }
-   .youtube-logo {
-    height: 20px;
+   .heythere-logo {
+    height: 60px;
   }
   
   .search-bar {
@@ -79,7 +93,7 @@ export default function Navbar() {
   }
   
   .search-input {
-    width: 100%;
+    width: 90%;
     font-size: inherit;
     padding: .4em;
     border: 1px solid #777;
@@ -105,9 +119,9 @@ export default function Navbar() {
   
   .menu-icons {
     display: grid;
-    grid-template-columns: repeat(4, auto);
+    grid-template-columns: repeat(7, auto);
     align-items: center;
-    gap: 1.5rem;
+    gap: 0.5rem;
   }
   
   .menu-channel-icon {
@@ -156,6 +170,6 @@ export default function Navbar() {
   }
   
             `}</style>
-        </header>
+        </>
     )
 }

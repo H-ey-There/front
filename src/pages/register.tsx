@@ -14,7 +14,7 @@ export default function Register () {
 
     async function onClickHandler() {
         const payload:RegisterUserRequestDto = {email, name, password};
-        await axios.post("http://localhost:8084/v1/registration", payload)
+        await axios.post("http://localhost:8080/auth/register", payload)
         .then(response => {
             const {status, data} = response;
             if (status === 201 || status === 200) {
@@ -27,7 +27,7 @@ export default function Register () {
             setEmail("");
             setName("");
             setPassword("");
-            window.alert("Nono something wrong~!");
+            window.alert("Nono! something wrong~!");
         })
     }
 
@@ -40,7 +40,10 @@ export default function Register () {
                 <input type="text" placeholder="nickname" className="box1 border2"
                 onChange={(e) => setName(e.target.value)}/>
                 <input type="password" placeholder="password" className="box1 border2"
-                onChange={e => setPassword(e.target.value)}/>
+                onChange={e => {
+                    setPassword(e.target.value)
+                    console.log(e.target.value)
+                }}/>
                 <input type="submit" className="send" value="Go" onClick={onClickHandler}/>
                 <div className="message"></div>
                 <p>Back to Login <a href="/login">click here</a></p>

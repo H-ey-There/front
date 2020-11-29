@@ -1,5 +1,6 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import axios from "axios";
+import CookieCutter from 'cookie-cutter'
 
 interface LoginFormRequestDto {
     email: string;
@@ -12,42 +13,57 @@ interface AuthResponse {
     tokenType: string;
 }
 
-export default function Login () {
+interface UserResponse {
+    id: number;
+    email: string;
+    name: string;
+    img?: string;
+}
+
+export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    useEffect(() => {
+        if (CookieCutter.get("token")) {
+            window.location.href = "/"
+        }
+    }, []);
+
+
     async function submitHandler() {
-        const payload: LoginFormRequestDto = {email, password};
+        const payload: LoginFormRequestDto = {email: email.trim(), password: password.trim()};
 
         await axios.post("http://localhost:8080/auth/login", payload)
-        .then(response => {
-            const {status, data} = response;
-            const res:AuthResponse = data;
+            .then(async response => {
+                const {status, data} = response;
+                const res: AuthResponse = data;
 
-            if (status === 200 && data) {
-                const {id, accessToken, tokenType} = res;
-                localStorage.setItem("token", `${tokenType} ${accessToken}`);
-                localStorage.setItem("id", `${id}`);
+                if (status === 200 && data) {
+                    const {id, accessToken, tokenType} = res;
+                    sessionStorage.setItem("token",`${tokenType} ${accessToken}`);
+                    CookieCutter.set("token", `${accessToken}`);
+                    CookieCutter.set("tokenType", "Bearer")
+                    CookieCutter.set("id", id);
 
-                console.log(localStorage.getItem("token"));
-                console.log(localStorage.getItem("id"));
-                window.location.href = "http://localhost:3000";
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            window.alert("유저정보가 올바르지 않습니다!");
-            setEmail("");
-            setPassword("");
-        })
+                    window.location.href = "http://localhost:3000";
+                }
+            })
+            .catch(err => {
+                console.error(err);
+            })
+
+
     }
 
     return (
         <div className="main-wrap">
             <div className="login-main">
                 <h1>Heythere!</h1>
-                <input type="email" placeholder="email" className="box1 border1" onChange={(e) => setEmail(e.target.value)}/>
-                <input type="password" placeholder="password" className="box1 border2" onChange={e => setPassword(e.target.value)}/>
+                <input type="email" placeholder="email" className="box1 border1"
+                       onChange={(e) => setEmail(e.target.value)}/>
+                <input type="password" placeholder="password" className="box1 border2"
+                       onChange={e => setPassword(e.target.value)}/>
                 <input type="submit" className="send" value="Go" onClick={submitHandler}/>
                 <div className="message"></div>
                 <p>Join Today <a href="/register">click here</a></p>

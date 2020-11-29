@@ -1,55 +1,167 @@
-import React, {useEffect} from "react";
+import React, {useState, useEffect} from "react";
 
-import VideoContainer from "../components/video-container";
+import VideoContainer from "../components/video/video-container";
 import Navbar from "../components/navbar"
-import VideoSection from "../components/video-section";
+import VideoSection from "../components/video/video-section";
+import axios from "axios";
+
+interface LargeComment {
+    id: number;
+    comment: string;
+    createdAt: string;
+    modifiedAt: string;
+    userId: number;
+    email: string;
+    name: string;
+    userImg: string;
+}
+
+interface Comment {
+    id: number;
+    comment: string;
+    createdAt: string;
+    modifiedAt: string;
+    userId: number;
+    email: string;
+    name: string;
+    userImg: string;
+    largeComments: LargeComment[];
+}
+
+interface Video {
+    id: number;
+    title: string;
+    description: string;
+    createdAt: string;
+    modifiedAt: string;
+    thumbnailUrl: string;
+    videoUrl: string;
+    viewCount: number
+    goodStatus: boolean,
+    badStatus: boolean;
+    userId: number;
+    email: string;
+    name: string;
+    userImg: string;
+    comments: Comment[];
+}
 
 export default function Index() {
+
+    const [topViewVideos, setTopViewVideos] = useState([]);
+    const [topLikeVideos, setTopLikeVideos] = useState([]);
+    const [videos, setVideos] = useState([]);
+
     useEffect(() => {
-        if (!(localStorage.getItem("token"))) {
-            window.alert("로그인이 필요합니다!");
+        if (!localStorage.getItem("token")) {
+            window.alert("로그인페이지로 이동합니다");
             window.location.href = "/login";
         }
-    }, []);
+
+        async function loadVideo() {
+            const response1 = await axios.get("http://localhost:8082/video")
+            const videos: Video[] = response1.data;
+            console.log(videos);
+            setVideos(videos);
+
+            const response2 = await axios.get("http://localhost:8082/order/topView")
+            const topViewVideos: Video[] = response2.data;
+            console.log(videos);
+            setTopViewVideos(topViewVideos);
+
+            const response3 = await axios.get("http://localhost:8082/order/goodCount")
+            const topLikeVideos: Video[] = response3.data;
+            console.log(topLikeVideos);
+            setTopLikeVideos(topLikeVideos);
+
+        }
+
+        loadVideo();
+    }, [])
 
 
     return (
         <>
-            <Navbar />
-            <div className="categories">
-                <section className="category-section">
-                    <button className="category active">All</button>
-                    <button className="category">Category 1</button>
-                    <button className="category">Category 2</button>
-                    <button className="category">Category 3</button>
-                    <button className="category">Category 4</button>
-                    <button className="category">Category 5</button>
-                    <button className="category">Category 6</button>
-                    <button className="category">Category 7</button>
-                    <button className="category">Category 8</button>
-                    <button className="category">Category 9</button>
-                </section>
-            </div>
+            <Navbar/>
             <div className="videos">
                 <VideoSection>
-                    <VideoContainer />
-                    <VideoContainer />
-                    <VideoContainer />
-                    <VideoContainer />
+                    {
+                        topViewVideos.map((video: Video) => {
+                            const {
+                                id,
+                                title,
+                                createdAt,
+                                thumbnailUrl,
+                                viewCount,
+                                userId,
+                                name,
+                                userImg
+                            } = video;
+                            return (
+                                <VideoContainer id={id}
+                                                title={title}
+                                                createdAt={createdAt}
+                                                thumbnailUrl={thumbnailUrl}
+                                                viewCount={viewCount} userId={userId}
+                                                name={name}
+                                                userImg={userImg}/>
+                            );
+                        })
+                    }
                 </VideoSection>
 
                 <VideoSection>
-                    <VideoContainer />
-                    <VideoContainer />
-                    <VideoContainer />
-                    <VideoContainer />
+                    {
+                        topLikeVideos.map((video: Video) => {
+                            const {
+                                id,
+                                title,
+                                createdAt,
+                                thumbnailUrl,
+                                viewCount,
+                                userId,
+                                name,
+                                userImg
+                            } = video;
+                            return (
+                                <VideoContainer id={id}
+                                                title={title}
+                                                createdAt={createdAt}
+                                                thumbnailUrl={thumbnailUrl}
+                                                viewCount={viewCount}
+                                                userId={userId}
+                                                name={name}
+                                                userImg={userImg}/>
+                            );
+                        })
+                    }
                 </VideoSection>
 
                 <VideoSection>
-                    <VideoContainer />
-                    <VideoContainer />
-                    <VideoContainer />
-                    <VideoContainer />
+                    {
+                        videos.map((video: Video) => {
+                            const {
+                                id,
+                                title,
+                                createdAt,
+                                thumbnailUrl,
+                                viewCount,
+                                userId,
+                                name,
+                                userImg
+                            } = video;
+                            return (
+                                <VideoContainer id={id}
+                                                title={title}
+                                                createdAt={createdAt}
+                                                thumbnailUrl={thumbnailUrl}
+                                                viewCount={viewCount}
+                                                userId={userId}
+                                                name={name}
+                                                userImg={userImg}/>
+                            );
+                        })
+                    }
                 </VideoSection>
 
                 <style>{`
